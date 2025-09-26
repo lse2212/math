@@ -1,4 +1,4 @@
->>> import streamlit as st
+import streamlit as st
 ... import numpy as np
 ... import matplotlib.pyplot as plt
 ... 
@@ -120,4 +120,5 @@ else:
 
 st.markdown("---")
 st.caption("🚀 이 앱은 Streamlit으로 제작되었습니다. 자유롭게 개선해서 사용하세요!")
+
 
