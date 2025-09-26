@@ -25,15 +25,15 @@ rotation_shapes = {
  }
  
 if menu == "다면체 탐구":
-     st.header('다면체의 성질')
-     poly_name = st.selectbox("다면체를 선택하세요.", list(polyhedrons.keys()))
-     st.write(f"### {poly_name}의 성질")
-     poly = polyhedrons[poly_name]
-     st.write(f"- **면의 수:** {poly['면']}개")
-     st.write(f"- **모서리의 수:** {poly['모서리']}개")
-     st.write(f"- **꼭짓점의 수:** {poly['꼭짓점']}개")
-     st.latex("면 + 꼭짓점 - 모서리 = 2")
-     if st.button("오일러의 정리 확인"):
+    st.header('다면체의 성질')
+    poly_name = st.selectbox("다면체를 선택하세요.", list(polyhedrons.keys()))
+    st.write(f"### {poly_name}의 성질")
+    poly = polyhedrons[poly_name]
+    st.write(f"- **면의 수:** {poly['면']}개")
+    st.write(f"- **모서리의 수:** {poly['모서리']}개")
+    st.write(f"- **꼭짓점의 수:** {poly['꼭짓점']}개")
+    st.latex("면 + 꼭짓점 - 모서리 = 2")
+    if st.button("오일러의 정리 확인"):
          result = poly['면'] + poly['꼭짓점'] - poly['모서리']
         st.write(f"확인: {poly['면']} + {poly['꼭짓점']} - {poly['모서리']} = {result}")
 
@@ -120,3 +120,4 @@ else:
 
 st.markdown("---")
 st.caption("🚀 이 앱은 Streamlit으로 제작되었습니다. 자유롭게 개선해서 사용하세요!")
+
