@@ -1,40 +1,40 @@
 import streamlit as st
-... import numpy as np
-... import matplotlib.pyplot as plt
-... 
-... st.title("중1 수학 - 다면체와 회전체의 성질 탐구 어플")
-... 
-... st.sidebar.header("탐구 주제 선택")
-... menu = st.sidebar.radio(
-...     "아래 중 하나를 선택하세요.",
-...     ("다면체 탐구", "다면체 전개도", "회전체 탐구", "회전체 단면 보기")
-... )
-... 
-... polyhedrons = {
-...     "정사면체": {"면": 4, "모서리": 6, "꼭짓점": 4},
-...     "정육면체(큐브)": {"면": 6, "모서리": 12, "꼭짓점": 8},
-...     "정팔면체": {"면": 8, "모서리": 12, "꼭짓점": 6},
-...     "정십이면체": {"면": 12, "모서리": 30, "꼭짓점": 20},
-...     "정이십면체": {"면": 20, "모서리": 30, "꼭짓점": 12},
-... }
-... 
-... rotation_shapes = {
-...     "원기둥": "밑면이 원인 직육면체를 회전해 만든 입체도형",
-...     "원뿔": "직각삼각형을 한 축을 기준으로 회전해 만든 입체도형",
-...     "구": "반원을 회전해 만든 입체도형"
-... }
-... 
-... if menu == "다면체 탐구":
-...     st.header('다면체의 성질')
-...     poly_name = st.selectbox("다면체를 선택하세요.", list(polyhedrons.keys()))
-...     st.write(f"### {poly_name}의 성질")
-...     poly = polyhedrons[poly_name]
-...     st.write(f"- **면의 수:** {poly['면']}개")
-...     st.write(f"- **모서리의 수:** {poly['모서리']}개")
-...     st.write(f"- **꼭짓점의 수:** {poly['꼭짓점']}개")
-...     st.latex("면 + 꼭짓점 - 모서리 = 2")
-...     if st.button("오일러의 정리 확인"):
-...         result = poly['면'] + poly['꼭짓점'] - poly['모서리']
+import numpy as np
+import matplotlib.pyplot as plt
+
+st.title("중1 수학 - 다면체와 회전체의 성질 탐구 어플")
+
+st.sidebar.header("탐구 주제 선택")
+menu = st.sidebar.radio(
+   "아래 중 하나를 선택하세요.",
+     ("다면체 탐구", "다면체 전개도", "회전체 탐구", "회전체 단면 보기")
+ )
+ 
+ polyhedrons = {
+     "정사면체": {"면": 4, "모서리": 6, "꼭짓점": 4},
+     "정육면체(큐브)": {"면": 6, "모서리": 12, "꼭짓점": 8},
+     "정팔면체": {"면": 8, "모서리": 12, "꼭짓점": 6},
+     "정십이면체": {"면": 12, "모서리": 30, "꼭짓점": 20},
+     "정이십면체": {"면": 20, "모서리": 30, "꼭짓점": 12},
+ }
+ 
+ rotation_shapes = {
+     "원기둥": "밑면이 원인 직육면체를 회전해 만든 입체도형",
+     "원뿔": "직각삼각형을 한 축을 기준으로 회전해 만든 입체도형",
+     "구": "반원을 회전해 만든 입체도형"
+ }
+ 
+ if menu == "다면체 탐구":
+     st.header('다면체의 성질')
+     poly_name = st.selectbox("다면체를 선택하세요.", list(polyhedrons.keys()))
+     st.write(f"### {poly_name}의 성질")
+     poly = polyhedrons[poly_name]
+     st.write(f"- **면의 수:** {poly['면']}개")
+     st.write(f"- **모서리의 수:** {poly['모서리']}개")
+     st.write(f"- **꼭짓점의 수:** {poly['꼭짓점']}개")
+     st.latex("면 + 꼭짓점 - 모서리 = 2")
+     if st.button("오일러의 정리 확인"):
+         result = poly['면'] + poly['꼭짓점'] - poly['모서리']
         st.write(f"확인: {poly['면']} + {poly['꼭짓점']} - {poly['모서리']} = {result}")
 
 elif menu == "다면체 전개도":
@@ -120,5 +120,6 @@ else:
 
 st.markdown("---")
 st.caption("🚀 이 앱은 Streamlit으로 제작되었습니다. 자유롭게 개선해서 사용하세요!")
+
 
 
