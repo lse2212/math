@@ -2,104 +2,104 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+from streamlit_drawable_canvas import st_canvas
 
-st.title("중1 수학 - 다면체와 회전체의 성질 탐구 어플")
+st.set_page_config(page_title="중1 수학 탐구 어플", layout="wide")
 
-st.sidebar.header("탐구 주제 선택")
+# ----------------------------
+# 사이드바 메뉴
+# ----------------------------
+st.sidebar.title("탐구 주제 선택")
 menu = st.sidebar.radio(
     "아래 중 하나를 선택하세요.",
-    ("다면체 탐구", "다면체 전개도", "회전체 탐구", "회전체 단면 보기")
+    (
+        "다면체 성질 탐구하기",
+        "회전체 탐구",
+        "회전체 단면 보기",
+        "나만의 회전체 만들기"
+    )
 )
 
-polyhedrons = {
-    "정사면체": {"면": 4, "모서리": 6, "꼭짓점": 4},
-    "정육면체(큐브)": {"면": 6, "모서리": 12, "꼭짓점": 8},
-    "정팔면체": {"면": 8, "모서리": 12, "꼭짓점": 6},
-    "정십이면체": {"면": 12, "모서리": 30, "꼭짓점": 20},
-    "정이십면체": {"면": 20, "모서리": 30, "꼭짓점": 12},
-}
+# ----------------------------
+# 1. 다면체 성질 탐구하기
+# ----------------------------
+if menu == "다면체 성질 탐구하기":
+    st.header("📐 다면체 성질 탐구하기")
 
-rotation_shapes = {
-    "원기둥": "밑면이 원인 직육면체를 회전해 만든 입체도형",
-    "원뿔": "직각삼각형을 한 축을 기준으로 회전해 만든 입체도형",
-    "구": "반원을 회전해 만든 입체도형",
-    "원뿔대": "밑면의 반지름이 서로 다른 두 원 사이를 잇는 회전체",
-}
+    solid_type = st.radio("도형 종류 선택", ["n각기둥", "n각뿔", "n각뿔대"])
+    n = st.number_input("밑면의 변의 수 (n)", min_value=3, step=1)
 
-if menu == "다면체 탐구":
-    st.header('다면체의 성질')
-    poly_name = st.selectbox("다면체를 선택하세요.", list(polyhedrons.keys()))
-    st.write(f"### {poly_name}의 성질")
-    poly = polyhedrons[poly_name]
-    st.write(f"- **면의 수:** {poly['면']}개")
-    st.write(f"- **모서리의 수:** {poly['모서리']}개")
-    st.write(f"- **꼭짓점의 수:** {poly['꼭짓점']}개")
-    st.latex("면 + 꼭짓점 - 모서리 = 2")
-    if st.button("오일러의 정리 확인"):
-        result = poly['면'] + poly['꼭짓점'] - poly['모서리']
-        st.write(f"확인: {poly['면']} + {poly['꼭짓점']} - {poly['모서리']} = {result}")
+    if solid_type == "n각기둥":
+        faces = n + 2
+        vertices = 2 * n
+        edges = 3 * n
+    elif solid_type == "n각뿔":
+        faces = n + 1
+        vertices = n + 1
+        edges = 2 * n
+    else:  # n각뿔대
+        faces = n + 2
+        vertices = 2 * n
+        edges = 3 * n
 
-    st.subheader("✏️ 학습 모드: 직접 성질 맞추기")
-    v = st.number_input("꼭짓점 개수 입력", min_value=0, step=1)
-    f = st.number_input("면 개수 입력", min_value=0, step=1)
-    e = st.number_input("모서리 개수 입력", min_value=0, step=1)
-    if st.button("정답 확인"):
-        if (v, f, e) == (poly['꼭짓점'], poly['면'], poly['모서리']):
-            st.success("정답입니다! 🎉")
-        else:
-            st.error(f"아쉽습니다. 정답은 꼭짓점 {poly['꼭짓점']}, 면 {poly['면']}, 모서리 {poly['모서리']}입니다.")
+    st.write(f"- **면의 수:** {faces}")
+    st.write(f"- **꼭짓점의 수:** {vertices}")
+    st.write(f"- **모서리의 수:** {edges}")
 
-    # 간단한 3D 큐브 시각화 (plotly)
-    if poly_name == "정육면체(큐브)":
-        fig = go.Figure(
-            data=[go.Mesh3d(
-                x=[0,1,1,0,0,1,1,0],
-                y=[0,0,1,1,0,0,1,1],
-                z=[0,0,0,0,1,1,1,1],
-                i=[0,0,0,1,1,2,2,3,4,4,5,6],
-                j=[1,2,3,2,3,3,6,7,5,6,6,7],
-                k=[2,3,0,6,7,7,3,0,6,7,4,4],
-                opacity=0.5,
-                color="skyblue"
-            )]
-        )
-        fig.update_layout(scene=dict(xaxis=dict(visible=False),
-                                     yaxis=dict(visible=False),
-                                     zaxis=dict(visible=False)))
-        st.plotly_chart(fig)
+    if solid_type != "n각뿔대":
+        st.latex("면 + 꼭짓점 - 모서리 = 2")
+        st.write(f"검산: {faces} + {vertices} - {edges} = {faces + vertices - edges}")
 
-elif menu == "다면체 전개도":
-    st.header('다면체 전개도')
-    poly_name = st.selectbox("전개도를 보고 싶은 도형을 선택하세요.", ["정육면체", "정사면체"])
-    st.write(f"#### {poly_name}의 전개도")
+    # 3D 시각화
+    theta = np.linspace(0, 2*np.pi, n, endpoint=False)
+    base_x = np.cos(theta)
+    base_y = np.sin(theta)
 
-    fig, ax = plt.subplots()
-    ax.axis('equal')
-    ax.axis('off')
-    if poly_name == "정육면체":
-        squares = [(1, 1), (2, 1), (3, 1), (2, 2), (2, 3), (2, 0)]
-        for (x, y) in squares:
-            rect = plt.Rectangle((x, y), 1, 1, edgecolor='black', facecolor='skyblue', linewidth=2)
-            ax.add_patch(rect)
-        ax.set_xlim(0, 5)
-        ax.set_ylim(-0.5, 4.5)
-    else:
-        triangles = [
-            np.array([[0,0], [1,0], [0.5,0.866], [0,0]]), # base
-            np.array([[0,0], [-0.5,-0.866], [0.5,0], [0,0]]), # left
-            np.array([[1,0], [1.5,-0.866], [0.5,0], [1,0]]), # right
-            np.array([[0.5,0.866],[0.5,1.732], [1,0.866], [0.5,0.866]]) # top
-        ]
-        for t in triangles:
-            ax.plot(t[:,0]+1, t[:,1]+1, 'k', linewidth=2)
-            ax.fill(t[:,0]+1, t[:,1]+1, 'lightgreen', alpha=0.8)
-        ax.set_xlim(-0.5, 2.5)
-        ax.set_ylim(-0.5, 3)
-    st.pyplot(fig)
-    st.info("전개도를 직접 그리고, 각 면이 어떻게 이어지는지 관찰해보세요!")
+    if solid_type == "n각기둥":
+        z_bottom = np.zeros_like(base_x)
+        z_top = np.ones_like(base_x)
+        fig = go.Figure(data=[
+            go.Mesh3d(x=np.concatenate([base_x, base_x]),
+                      y=np.concatenate([base_y, base_y]),
+                      z=np.concatenate([z_bottom, z_top]),
+                      alphahull=0, opacity=0.5, color="lightblue")
+        ])
+    elif solid_type == "n각뿔":
+        apex = [0, 0, 1]
+        fig = go.Figure(data=[
+            go.Mesh3d(x=np.append(base_x, apex[0]),
+                      y=np.append(base_y, apex[1]),
+                      z=np.append(np.zeros_like(base_x), apex[2]),
+                      alphahull=0, opacity=0.5, color="lightgreen")
+        ])
+    else:  # n각뿔대
+        r1, r2 = 1.0, 0.5
+        base_x1, base_y1 = r1*np.cos(theta), r1*np.sin(theta)
+        base_x2, base_y2 = r2*np.cos(theta), r2*np.sin(theta)
+        fig = go.Figure(data=[
+            go.Mesh3d(x=np.concatenate([base_x1, base_x2]),
+                      y=np.concatenate([base_y1, base_y2]),
+                      z=np.concatenate([np.zeros_like(base_x1), np.ones_like(base_x2)]),
+                      alphahull=0, opacity=0.5, color="orange")
+        ])
 
+    fig.update_layout(scene=dict(xaxis=dict(visible=False),
+                                 yaxis=dict(visible=False),
+                                 zaxis=dict(visible=False)))
+    st.subheader("3D 시각화")
+    st.plotly_chart(fig, use_container_width=True)
+
+# ----------------------------
+# 2. 회전체 탐구
+# ----------------------------
 elif menu == "회전체 탐구":
-    st.header('회전체의 성질')
+    st.header("회전체의 성질")
+    rotation_shapes = {
+        "원기둥": "밑면이 원인 직사각형을 회전해 만든 입체도형",
+        "원뿔": "직각삼각형을 한 축을 기준으로 회전해 만든 입체도형",
+        "구": "반원을 회전해 만든 입체도형",
+        "원뿔대": "밑면의 반지름이 서로 다른 두 원 사이를 잇는 회전체",
+    }
     shape = st.selectbox("회전체를 선택하세요.", list(rotation_shapes.keys()))
     st.write(f"### {shape}")
     st.write(f"**정의:** {rotation_shapes[shape]}")
@@ -107,61 +107,125 @@ elif menu == "회전체 탐구":
     if shape == "원기둥":
         r = st.number_input("반지름 r", min_value=1.0, step=1.0)
         h = st.number_input("높이 h", min_value=1.0, step=1.0)
-        st.write(f"- 밑면의 넓이 = πr² = {np.pi*r**2:.2f}")
-        st.write(f"- 옆면의 넓이 = 2πrh = {2*np.pi*r*h:.2f}")
         st.write(f"- 부피 = πr²h = {np.pi*r**2*h:.2f}")
     elif shape == "원뿔":
         r = st.number_input("반지름 r", min_value=1.0, step=1.0)
         h = st.number_input("높이 h", min_value=1.0, step=1.0)
-        l = np.sqrt(r**2 + h**2)
-        st.write(f"- 밑면의 넓이 = πr² = {np.pi*r**2:.2f}")
-        st.write(f"- 옆면의 넓이 = πrl = {np.pi*r*l:.2f}")
         st.write(f"- 부피 = (1/3)πr²h = {(1/3)*np.pi*r**2*h:.2f}")
     elif shape == "구":
         r = st.number_input("반지름 r", min_value=1.0, step=1.0)
-        st.write(f"- 겉넓이 = 4πr² = {4*np.pi*r**2:.2f}")
         st.write(f"- 부피 = (4/3)πr³ = {(4/3)*np.pi*r**3:.2f}")
-    else:  # 원뿔대
+    else:
         r1 = st.number_input("밑면 반지름 r1", min_value=1.0, step=1.0)
         r2 = st.number_input("윗면 반지름 r2", min_value=1.0, step=1.0)
         h = st.number_input("높이 h", min_value=1.0, step=1.0)
         st.write(f"- 부피 = (1/3)πh(r1² + r2² + r1r2) = {(1/3)*np.pi*h*(r1**2 + r2**2 + r1*r2):.2f}")
-        st.write(f"- 옆면적 = π(r1+r2)l (단, l=√((r1-r2)²+h²))")
 
-else:
-    st.header("회전체 단면")
-    st.write("회전체를 수평, 수직으로 잘랐을 때 단면의 모양을 확인할 수 있습니다.")
-    shape = st.selectbox("도형을 선택하세요.", ["원기둥", "원뿔"])
-    cut = st.radio("자르는 방향을 선택하세요.", ("수평 (밑면과 평행)", "수직 (축과 평행)"))
+# ----------------------------
+# 3. 회전체 단면 보기
+# ----------------------------
+elif menu == "회전체 단면 보기":
+    st.header("회전체 단면 관찰")
+    shape = st.selectbox("도형 선택", ["원기둥", "원뿔"])
+    cut_dir = st.radio("자르는 방향", ["수평 (밑면과 평행)", "수직 (축과 평행)"])
 
     fig, ax = plt.subplots()
-    ax.axis('equal')
-    ax.axis('off')
+    ax.axis("equal")
+    ax.axis("off")
+
     if shape == "원기둥":
-        if cut == "수평 (밑면과 평행)":
-            circle = plt.Circle((0.5, 0.5), 0.4, color='orange', fill=True)
+        if cut_dir == "수평 (밑면과 평행)":
+            circle = plt.Circle((0.5, 0.5), 0.4, color='orange')
             ax.add_patch(circle)
-            st.write("단면: **원(circle)**")
+            st.write("단면: 원(circle)")
         else:
             rect = plt.Rectangle((0.1,0.1), 0.8, 0.8, color='lightblue')
             ax.add_patch(rect)
-            st.write("단면: **직사각형(rectangle)**")
-        ax.set_xlim(0,1)
-        ax.set_ylim(0,1)
-    else:
-        if cut == "수평 (밑면과 평행)":
-            ellipse = plt.Ellipse((0.5, 0.3), 0.7, 0.2, color='salmon', fill=True)
-            ax.add_patch(ellipse)
-            st.write("단면(아래쪽): **원(circle)**, 단면(중간): **작은 원(circle)**")
+            st.write("단면: 직사각형(rectangle)")
+    else:  # 원뿔
+        if cut_dir == "수평 (밑면과 평행)":
+            circle = plt.Circle((0.5, 0.5), 0.3, color='salmon')
+            ax.add_patch(circle)
+            st.write("단면: 원(circle)")
         else:
             triangle = np.array([[0.5,0.1], [0.1,0.9], [0.9,0.9], [0.5,0.1]])
             ax.plot(triangle[:,0], triangle[:,1], 'k')
-            ax.fill(triangle[:,0], triangle[:,1], 'yellow', alpha=0.8)
-            st.write("단면: **이등변삼각형(isosceles triangle)**")
-        ax.set_xlim(0,1)
-        ax.set_ylim(0,1)
+            ax.fill(triangle[:,0], triangle[:,1], 'yellow')
+            st.write("단면: 이등변삼각형(isosceles triangle)")
+
     st.pyplot(fig)
-    st.warning("회전체의 단면 모양을 직접 상상하거나 그려 보세요!")
+
+# ----------------------------
+# 4. 나만의 회전체 만들기
+# ----------------------------
+elif menu == "나만의 회전체 만들기":
+    st.header("🎨 나만의 회전체 만들기")
+    st.write("왼쪽 캔버스에 단면 도형을 그리고, y축을 기준으로 회전시켜 회전체를 만들어 보세요.")
+
+    canvas_result = st_canvas(
+        fill_color="rgba(255, 0, 0, 0.3)",
+        stroke_width=3,
+        stroke_color="#000000",
+        background_color="#ffffff",
+        height=400,
+        width=400,
+        drawing_mode="freedraw",
+        key="canvas_custom",
+    )
+
+    if canvas_result.image_data is not None:
+        img = np.mean(canvas_result.image_data[:, :, :3], axis=2)
+        ys, xs = np.where(img < 200)
+
+        if len(xs) > 0:
+            xs = (xs - xs.min()) / (xs.max() - xs.min())
+            ys = (ys - ys.min()) / (ys.max() - ys.min())
+
+            theta = np.linspace(0, 2*np.pi, 60)
+            Xs, Thetas = np.meshgrid(xs, theta)
+            Ys, _ = np.meshgrid(ys, theta)
+
+            Zs = Xs * np.cos(Thetas)
+            Xs = Xs * np.sin(Thetas)
+
+            fig = go.Figure(data=[go.Surface(
+                x=Xs, y=Ys, z=Zs, colorscale="Viridis", opacity=0.7
+            )])
+            fig.update_layout(scene=dict(
+                xaxis=dict(visible=False),
+                yaxis=dict(visible=False),
+                zaxis=dict(visible=False),
+            ))
+            st.subheader("🌀 생성된 회전체")
+            st.plotly_chart(fig, use_container_width=True)
+
+            # 단면 탐구 기능
+            st.subheader("✂️ 단면 탐구하기")
+            cut_dir = st.radio("자르는 방향", ["수평 (밑면과 평행)", "수직 (축과 평행)"])
+
+            if cut_dir == "수평 (밑면과 평행)":
+                cut_height = st.slider("단면 높이 선택 (0~1)", 0.0, 1.0, 0.5, 0.05)
+                fig_cut = go.Figure(data=[go.Scatter(
+                    x=xs*np.cos(theta), y=xs*np.sin(theta), mode="markers"
+                )])
+                fig_cut.update_layout(title=f"높이 {cut_height:.2f}에서의 단면",
+                                      xaxis=dict(visible=False),
+                                      yaxis=dict(visible=False))
+                st.plotly_chart(fig_cut, use_container_width=True)
+
+            else:  # 수직 절단
+                cut_pos = st.slider("절단 위치 (x축 기준, 0~1)", 0.0, 1.0, 0.5, 0.05)
+                vertical_section = ys
+                fig_cut = go.Figure(data=[go.Scatter(
+                    x=vertical_section, y=xs, mode="markers"
+                )])
+                fig_cut.update_layout(title=f"x={cut_pos:.2f}에서의 수직 단면",
+                                      xaxis=dict(visible=False),
+                                      yaxis=dict(visible=False))
+                st.plotly_chart(fig_cut, use_container_width=True)
+
+        else:
+            st.info("✏️ 먼저 캔버스에 도형을 그려주세요.")
 
 st.markdown("---")
-st.caption("🚀 이 앱은 Streamlit으로 제작되었습니다. 자유롭게 개선해서 사용하세요!")
+st.write("© 2025 중1 수학 탐구 어플 - Streamlit Demo")
