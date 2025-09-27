@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 st.title("중1 수학 - 다면체와 회전체의 성질 탐구 어플")
 
@@ -21,7 +22,8 @@ polyhedrons = {
 rotation_shapes = {
     "원기둥": "밑면이 원인 직육면체를 회전해 만든 입체도형",
     "원뿔": "직각삼각형을 한 축을 기준으로 회전해 만든 입체도형",
-    "구": "반원을 회전해 만든 입체도형"
+    "구": "반원을 회전해 만든 입체도형",
+    "원뿔대": "밑면의 반지름이 서로 다른 두 원 사이를 잇는 회전체",
 }
 
 if menu == "다면체 탐구":
@@ -36,6 +38,35 @@ if menu == "다면체 탐구":
     if st.button("오일러의 정리 확인"):
         result = poly['면'] + poly['꼭짓점'] - poly['모서리']
         st.write(f"확인: {poly['면']} + {poly['꼭짓점']} - {poly['모서리']} = {result}")
+
+    st.subheader("✏️ 학습 모드: 직접 성질 맞추기")
+    v = st.number_input("꼭짓점 개수 입력", min_value=0, step=1)
+    f = st.number_input("면 개수 입력", min_value=0, step=1)
+    e = st.number_input("모서리 개수 입력", min_value=0, step=1)
+    if st.button("정답 확인"):
+        if (v, f, e) == (poly['꼭짓점'], poly['면'], poly['모서리']):
+            st.success("정답입니다! 🎉")
+        else:
+            st.error(f"아쉽습니다. 정답은 꼭짓점 {poly['꼭짓점']}, 면 {poly['면']}, 모서리 {poly['모서리']}입니다.")
+
+    # 간단한 3D 큐브 시각화 (plotly)
+    if poly_name == "정육면체(큐브)":
+        fig = go.Figure(
+            data=[go.Mesh3d(
+                x=[0,1,1,0,0,1,1,0],
+                y=[0,0,1,1,0,0,1,1],
+                z=[0,0,0,0,1,1,1,1],
+                i=[0,0,0,1,1,2,2,3,4,4,5,6],
+                j=[1,2,3,2,3,3,6,7,5,6,6,7],
+                k=[2,3,0,6,7,7,3,0,6,7,4,4],
+                opacity=0.5,
+                color="skyblue"
+            )]
+        )
+        fig.update_layout(scene=dict(xaxis=dict(visible=False),
+                                     yaxis=dict(visible=False),
+                                     zaxis=dict(visible=False)))
+        st.plotly_chart(fig)
 
 elif menu == "다면체 전개도":
     st.header('다면체 전개도')
@@ -72,16 +103,30 @@ elif menu == "회전체 탐구":
     shape = st.selectbox("회전체를 선택하세요.", list(rotation_shapes.keys()))
     st.write(f"### {shape}")
     st.write(f"**정의:** {rotation_shapes[shape]}")
-    st.image(
-        f"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/{'Cylindre' if shape=='원기둥' else ('Cone' if shape=='원뿔' else 'Sphere')}_3D.svg/240px-{ 'Cylindre' if shape=='원기둥' else ('Cone' if shape=='원뿔' else 'Sphere') }_3D.svg.png",
-        caption=f"{shape} 예시"
-    )
+
     if shape == "원기둥":
-        st.write("밑면의 넓이는 πr², 옆면의 넓이는 2πrh, 부피는 πr²h 입니다.")
+        r = st.number_input("반지름 r", min_value=1.0, step=1.0)
+        h = st.number_input("높이 h", min_value=1.0, step=1.0)
+        st.write(f"- 밑면의 넓이 = πr² = {np.pi*r**2:.2f}")
+        st.write(f"- 옆면의 넓이 = 2πrh = {2*np.pi*r*h:.2f}")
+        st.write(f"- 부피 = πr²h = {np.pi*r**2*h:.2f}")
     elif shape == "원뿔":
-        st.write("밑면의 넓이는 πr², 옆면의 넓이는 πrl, 부피는 (1/3)πr²h 입니다.")
-    else:
-        st.write("겉넓이: 4πr², 부피: (4/3)πr³")
+        r = st.number_input("반지름 r", min_value=1.0, step=1.0)
+        h = st.number_input("높이 h", min_value=1.0, step=1.0)
+        l = np.sqrt(r**2 + h**2)
+        st.write(f"- 밑면의 넓이 = πr² = {np.pi*r**2:.2f}")
+        st.write(f"- 옆면의 넓이 = πrl = {np.pi*r*l:.2f}")
+        st.write(f"- 부피 = (1/3)πr²h = {(1/3)*np.pi*r**2*h:.2f}")
+    elif shape == "구":
+        r = st.number_input("반지름 r", min_value=1.0, step=1.0)
+        st.write(f"- 겉넓이 = 4πr² = {4*np.pi*r**2:.2f}")
+        st.write(f"- 부피 = (4/3)πr³ = {(4/3)*np.pi*r**3:.2f}")
+    else:  # 원뿔대
+        r1 = st.number_input("밑면 반지름 r1", min_value=1.0, step=1.0)
+        r2 = st.number_input("윗면 반지름 r2", min_value=1.0, step=1.0)
+        h = st.number_input("높이 h", min_value=1.0, step=1.0)
+        st.write(f"- 부피 = (1/3)πh(r1² + r2² + r1r2) = {(1/3)*np.pi*h*(r1**2 + r2**2 + r1*r2):.2f}")
+        st.write(f"- 옆면적 = π(r1+r2)l (단, l=√((r1-r2)²+h²))")
 
 else:
     st.header("회전체 단면")
